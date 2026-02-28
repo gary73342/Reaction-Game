@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>反應測試小遊戲 (Colorful Speed Clicker)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 { margin-bottom: 10px; text-align: center; font-size: 24px; }
+    .controls { margin-bottom: 20px; display: flex; gap: 10px; }
+    .btn-mode {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.2s;
+    }
+    .btn-mode:hover { background-color: #0056b3; }
+    .timer { font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #dc3545; }
+    
+    .grid {
+      display: grid;
+      gap: 10px;
+      margin: 0 auto;
+    }
+    .btn {
+      width: 70px;
+      height: 70px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.1s, opacity 0.2s;
+      /* 防止手機上點擊時畫面放大縮小 */
+      touch-action: manipulation; 
+    }
+    .btn:active { transform: scale(0.92); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .btn.hidden { opacity: 0; pointer-events: none; }
+    
+    @media (max-width: 400px) {
+      .btn { width: 65px; height: 65px; font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>反應測試小遊戲</h1>
+  <div class="controls">
+    <button class="btn-mode" onclick="startGame(3)">3x3 (簡單)</button>
+    <button class="btn-mode" onclick="startGame(4)">4x4 (困難)</button>
+  </div>
+  <div class="timer">時間: <span id="timeDisplay">0.000</span> 秒</div>
+  <div id="gameBoard" class="grid"></div>
+
+  <script>
+    // 完美還原你專案提到的 16 種粉彩顏色
+    const pastelColors =[
+      "#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", 
+      "#BAE1FF", "#E8B2C1", "#D5AAFF", "#FFC8A2",
+      "#B5EAD7", "#C7CEEA", "#FF9CEE", "#F9F871",
+      "#FBE7C6", "#B4F8C8", "#A0E7E5", "#FFAEBC"
+    ];
+
+    let currentNumber = 1;
+    let maxNumber = 9;
+    let startTime = null;
+    let timerInterval = null;
+
+    function startGame(size) {
+        clearInterval(timerInterval);
+        document.getElementById('timeDisplay').innerText = "0.000";
+        currentNumber = 1;
+        maxNumber = size * size;
+        startTime = null;
+
+        const board = document.getElementById('gameBoard');
+        board.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+        board.innerHTML = '';
+
+        // 產生數字並隨機打亂
+        let numbers = Array.from({length: maxNumber}, (_, i) => i + 1);
+        numbers.sort(() => Math.random() - 0.5);
+
+        // 將顏色打亂，讓每次玩顏色配置都不一樣
+        let colors = [...pastelColors].sort(() => Math.random() - 0.5);
+
+        numbers.forEach((num, index) => {
+            let btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = num;
+            btn.style.backgroundColor = colors[index % colors.length];
+            btn.onclick = () => handleButtonPress(btn, num);
+            board.appendChild(btn);
+        });
+    }
+
+    function handleButtonPress(btn, num) {
+        // 確認玩家是否點擊了正確順序的數字
+        if (num === currentNumber) {
+            // 如果是點擊「1」，才正式開始計時
+            if (currentNumber === 1) {
+                startTime = Date.now();
+                // 設定每 10 毫秒更新一次畫面
+                timerInterval = setInterval(updateTimer, 10);
+            }
+            
+            // 按下正確數字後，該按鈕透明消失 (視覺回饋)
+            btn.classList.add('hidden');
+
+            if (currentNumber === maxNumber) {
+                // 遊戲結束，停止計時
+                clearInterval(timerInterval);
+                updateTimer(); // 更新最後的準確時間
+                setTimeout(() => {
+                    alert(`太神啦！你總共花費了 ${document.getElementById('timeDisplay').innerText} 秒！\n截圖分享給朋友看看吧😎`);
+                }, 50);
+            } else {
+                currentNumber++;
+            }
+        }
+    }
+
+    function updateTimer() {
+        if (!startTime) return;
+        const elapsed = (Date.now() - startTime) / 1000;
+        document.getElementById('timeDisplay').innerText = elapsed.toFixed(3);
+    }
+
+    // 網頁載入時預設啟動 3x3 模式
+    window.onload = () => startGame(3);
+  </script>
+</body>
+</html>
