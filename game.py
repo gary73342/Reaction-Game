@@ -187,12 +187,12 @@ class ColorfulSpeedGame:
             
             # 計時邏輯
             if number == 1:
-                self.start_time = time.time()
+                self.start_time = time.perf_counter()
                 self.info_label.config(text="計時中...加油！")
             
             # 結束邏輯
             if number == total_cells:
-                end_time = time.time()
+                end_time = time.perf_counter()
                 elapsed = end_time - self.start_time
                 self.info_label.config(text="挑戰成功！")
                 messagebox.showinfo("完成", f"【{self.current_mode}x{self.current_mode} 模式】\n\n花費時間：{elapsed:.3f} 秒")

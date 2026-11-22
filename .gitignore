@@ -1,0 +1,13 @@
+# Virtual environments
+.venv/
+.venv-win/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# PyInstaller output
+build/
+dist/
+*.spec
