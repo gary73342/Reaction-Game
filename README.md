@@ -2,6 +2,12 @@
 
 A simple and fun reaction training game built with Python and Tkinter. The objective is simple: click the numbers in ascending order (starting from 1) as fast as you can!
 
+## Play Online
+
+🌐 **Web version:** https://gary73342.github.io/Reaction-Game/
+
+No download needed — works in any browser, including on mobile.
+
 ## Features
 
 * **Two Difficulty Modes:**
